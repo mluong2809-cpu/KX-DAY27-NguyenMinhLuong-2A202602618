@@ -142,6 +142,8 @@ The SQLite file `hitl_audit.db` is created on demand when exercise 4 runs.
 The LLM factory accepts either a Gemini API key from Google AI Studio or an
 OpenRouter API key. Set `GEMINI_API_KEY` or `OPENROUTER_API_KEY` in `.env`;
 `LLM_MODEL` and `LLM_BASE_URL` can be left blank to use that provider's defaults.
+The Gemini default is `gemini-3.5-flash-lite`; both demo PRs were checked with
+this model and the confidence thresholds in `common/schemas.py`.
 
 ## Demo PRs
 

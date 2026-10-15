@@ -15,7 +15,7 @@ from langgraph.graph import END, START, StateGraph
 from rich.console import Console
 
 from common.github import fetch_pr
-from common.llm import get_llm
+from common.llm import get_llm, review_system_prompt
 from common.schemas import (
     AUTO_APPROVE_THRESHOLD,
     ESCALATE_THRESHOLD,
@@ -43,12 +43,7 @@ def node_analyze(state: ReviewState) -> dict:
     llm = get_llm().with_structured_output(PRAnalysis)
     with console.status("[dim]LLM thinking...[/dim]"):
         analysis = llm.invoke([
-            {"role": "system", "content": (
-                "You are a senior code reviewer. Review the diff for correctness, "
-                "security, tests, and migration risks. Return a structured PRAnalysis. "
-                "Set confidence to how certain you are that your review is complete "
-                "and correct, and explain that score."
-            )},
+            {"role": "system", "content": review_system_prompt()},
             {"role": "user", "content": f"Title: {state['pr_title']}\nDiff:\n{state['pr_diff']}"},
         ])
     return {"analysis": analysis}

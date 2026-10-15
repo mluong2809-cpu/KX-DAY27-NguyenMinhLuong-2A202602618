@@ -39,7 +39,7 @@ from rich.panel import Panel
 
 from common.db import db_path, write_audit_event
 from common.github import fetch_pr, post_review_comment
-from common.llm import get_llm
+from common.llm import get_llm, review_system_prompt
 from common.schemas import (
     AUTO_APPROVE_THRESHOLD,
     ESCALATE_THRESHOLD,
@@ -102,14 +102,7 @@ async def node_analyze(state):
     llm = get_llm().with_structured_output(PRAnalysis)
     with console.status("[dim]LLM reviewing the diff...[/dim]"):
         a: PRAnalysis = await llm.ainvoke([
-            {"role": "system", "content": (
-                "You are a senior code reviewer. Return a structured PRAnalysis. "
-                "Review correctness, security, migrations, and tests. Set confidence "
-                "to how certain you are that the review is complete and correct. "
-                f"When confidence is below {ESCALATE_THRESHOLD:.0%}, provide 2–4 "
-                "specific escalation_questions naming the relevant file and "
-                "function or section of the diff."
-            )},
+            {"role": "system", "content": review_system_prompt()},
             {"role": "user", "content": f"Title: {state['pr_title']}\nDiff:\n{state['pr_diff']}"},
         ])
     console.print(f"  [green]✓[/green] confidence={a.confidence:.0%}, {len(a.comments)} comment(s)")

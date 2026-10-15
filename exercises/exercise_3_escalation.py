@@ -17,7 +17,7 @@ from rich.console import Console
 from rich.panel import Panel
 
 from common.github import fetch_pr, post_review_comment
-from common.llm import get_llm
+from common.llm import get_llm, review_system_prompt
 from common.schemas import (
     AUTO_APPROVE_THRESHOLD,
     ESCALATE_THRESHOLD,
@@ -42,15 +42,7 @@ def node_analyze(state):
     llm = get_llm().with_structured_output(PRAnalysis)
     with console.status("[dim]LLM reviewing the diff...[/dim]"):
         analysis = llm.invoke([
-            {"role": "system", "content": (
-                "You are a senior code reviewer. Return a structured PRAnalysis. "
-                "Assess correctness, security, migrations, and tests. Confidence is "
-                "your certainty that the review is complete and correct. If confidence "
-                f"is below {ESCALATE_THRESHOLD:.0%}, populate escalation_questions "
-                "with 2–4 specific questions about the changed code, naming the "
-                "relevant file and function or section. Ask about missing intent, "
-                "threat model, or migration details that affect your review."
-            )},
+            {"role": "system", "content": review_system_prompt()},
             {"role": "user", "content": f"Title: {state['pr_title']}\nDiff:\n{state['pr_diff']}"},
         ])
     console.print(f"  [green]✓[/green] confidence={analysis.confidence:.0%}, {len(analysis.escalation_questions)} question(s)")
