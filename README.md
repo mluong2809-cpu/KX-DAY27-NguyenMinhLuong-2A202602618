@@ -79,8 +79,8 @@ Thresholds live in `common/schemas.py` (`AUTO_APPROVE_THRESHOLD = 0.73`, `ESCALA
 ├── pyproject.toml
 ├── .env.example
 │
-├── common/                  # shared utilities — provided, don't modify
-│   ├── llm.py               # ChatOpenAI factory (OpenRouter)
+├── common/                  # shared utilities
+│   ├── llm.py               # ChatOpenAI factory (Gemini or OpenRouter)
 │   ├── github.py            # httpx REST API client: fetch_pr / post_review_comment
 │   ├── db.py                # aiosqlite connection + write_audit_event
 │   └── schemas.py           # ReviewState (TypedDict) + PRAnalysis + AuditEntry (Pydantic)
@@ -100,7 +100,7 @@ Thresholds live in `common/schemas.py` (`AUTO_APPROVE_THRESHOLD = 0.73`, `ESCALA
 
 - Python 3.11+
 - [uv](https://docs.astral.sh/uv/) package manager
-- An [OpenRouter](https://openrouter.ai/keys) API key (free tier has $1 credit)
+- A [Gemini API key](https://aistudio.google.com/apikey) or an [OpenRouter API key](https://openrouter.ai/keys)
 - A GitHub Personal Access Token — see next section
 
 No Docker, no Postgres install, no `gh` CLI. The agent talks to GitHub directly via the REST API. Audit + checkpointer state both live in a single SQLite file (`./hitl_audit.db`) created automatically on first run.
@@ -131,12 +131,17 @@ The agent calls the GitHub REST API directly to **read PR diffs** and **post rev
 ## Setup (once)
 
 ```bash
-git clone <lab-repo-url> && cd Day27-Track3-HITL
+git clone https://github.com/mluong2809-cpu/KX-DAY27-NguyenMinhLuong-2A202602618.git
+cd KX-DAY27-NguyenMinhLuong-2A202602618
 uv sync                                     # install Python deps
-cp .env.example .env && $EDITOR .env        # set OPENROUTER_API_KEY and GITHUB_TOKEN
+cp .env.example .env && $EDITOR .env        # set GEMINI_API_KEY or OPENROUTER_API_KEY, plus GITHUB_TOKEN and GITHUB_USER
 ```
 
 The SQLite file `hitl_audit.db` is created on demand when exercise 4 runs.
+
+The LLM factory accepts either a Gemini API key from Google AI Studio or an
+OpenRouter API key. Set `GEMINI_API_KEY` or `OPENROUTER_API_KEY` in `.env`;
+`LLM_MODEL` and `LLM_BASE_URL` can be left blank to use that provider's defaults.
 
 ## Demo PRs
 
