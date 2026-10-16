@@ -68,7 +68,7 @@ with st.sidebar:
     sessions = asyncio.run(recent_sessions())
     if sessions:
         selected = st.dataframe(
-            sessions, hide_index=True, use_container_width=True,
+            sessions, hide_index=True, width="stretch",
             on_select="rerun", selection_mode="single-row", key="recent_sessions",
         )
         rows = selected.selection.rows
